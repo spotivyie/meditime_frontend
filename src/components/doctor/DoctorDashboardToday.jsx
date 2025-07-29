@@ -39,7 +39,7 @@ export default function DashboardAppointments({ role }) {
 
   const fetchDoctorAppointments = async () => {
     try {
-      const today = new Date().toISOString().split('T')[0];
+      const today = new Date().toISOString().split('T')[0]; 
       const [todayRes, nextRes] = await Promise.all([
         api.get(`/doctor-agenda?date=${today}`, {
           headers: { Authorization: `Bearer ${token}` },
@@ -48,17 +48,14 @@ export default function DashboardAppointments({ role }) {
           headers: { Authorization: `Bearer ${token}` },
         }),
       ]);
-      const filterValid = (list) => list.filter(app => app.status !== 'completed');
-      setAppointmentsToday(filterValid(todayRes.data));
 
-      const todayStr = new Date().toDateString();
-      const upcoming = nextRes.data.filter(app => {
-        const appDate = new Date(app.date).toDateString();
-        return appDate !== todayStr && app.status !== 'completed';
-      });
-      setAppointmentsNext(upcoming);
+      const filterValid = (list) => list.filter(app => app.status !== 'completed');
+      setAppointmentsToday(filterValid(todayRes.data));  
+      setAppointmentsNext(filterValid(nextRes.data));    
+
       setError('');
-    } catch {
+    } catch (err) {
+      console.error("Erro ao carregar agendamentos do médico", err);
       setError('Erro ao carregar agenda');
     }
   };

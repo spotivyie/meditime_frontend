@@ -33,7 +33,7 @@ export default function PatientAppointmentsSummary() {
           icon={CalendarDays}
           color="yellow"
           count={agendados.length}
-          title="Consultas agendadas"
+          title="Consultas finalizadas"
         />
         <ConsultaCard
           icon={Hourglass}

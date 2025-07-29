@@ -8,6 +8,7 @@ import AuthButton from '../components/ui/AuthButton';
 //images
 import Doctor from '../assets/image.jpg';
 import Logo from '../assets/meditime.png';
+import EmptyState from '../components/ui/EmptyState';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -57,7 +58,7 @@ const Login = () => {
 
           <h2 className="text-2xl font-bold text-center">Acesse sua conta</h2>
 
-          <div className="space-y-4">
+          <div className="space-y-2">
             <Input
               type="email"
               placeholder="Seu e-mail"
@@ -65,6 +66,7 @@ const Login = () => {
               onChange={(e) => setEmail(e.target.value)}
               required
             />
+            <EmptyState message='Email: teste@hotmail.com / doctor@hotmail.com'/>
             <Input
               type="password"
               placeholder="Sua senha"
@@ -72,6 +74,7 @@ const Login = () => {
               onChange={(e) => setPassword(e.target.value)}
               required
             />
+            <EmptyState message='Senha: teste123'/>
           </div>
 
           <div className="text-right text-sm">
