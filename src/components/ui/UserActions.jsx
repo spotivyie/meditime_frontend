@@ -16,11 +16,11 @@ export default function UserActions({
 
     return (
         <div className={containerClass}>
-            <span className="font-semibold md:hidden">Ações: </span>
+            <span className="font-semibold md:hidden mr-3">Ações: </span>
 
             <button
                 onClick={onEdit}
-                className="text-blue-600 hover:text-blue-800 transition-colors mx-2 pt-6 md:mx-0 md:pt-0"
+                className="text-blue-600 hover:text-blue-800 transition-colors"
                 title="Editar"
                 type="button"
             >
@@ -42,7 +42,7 @@ export default function UserActions({
                 <>
                     <button
                         onClick={onCancel}
-                        className="text-red-600 hover:text-red-800 transition-colors mr-2 md:mr-0 "
+                        className="text-red-600 hover:text-red-800 transition-colors mx-3 pt-6 md:mx-0 md:pt-0"
                         title="Cancelar"
                         type="button"
                     >

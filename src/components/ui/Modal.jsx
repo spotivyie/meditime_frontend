@@ -14,7 +14,7 @@ export default function Modal({ isOpen = true, onClose, children }) {
       aria-modal="true"
       role="dialog"
     >
-      <div className="absolute inset-0" style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }} />
+      <div className="absolute inset-0" style={{ backgroundColor: 'rgba(0, 0, 0, 0.9)' }} />
 
       <div className="max-w-xl w-full relative">
         {children}
