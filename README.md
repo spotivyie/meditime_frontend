@@ -9,7 +9,7 @@
 - React 19
 - Vite
 - React Router DOM v7
-- Tailwind CSS 4
+- Tailwind CSS
 - Axios
 - Recharts
 - Lucide-react
