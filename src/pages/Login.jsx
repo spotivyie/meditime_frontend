@@ -58,7 +58,7 @@ const Login = () => {
 
           <h2 className="text-2xl font-bold text-center">Acesse sua conta</h2>
 
-          <div className="space-y-2">
+          <div className="space-y-4">
             <Input
               type="email"
               placeholder="Seu e-mail"
@@ -66,7 +66,7 @@ const Login = () => {
               onChange={(e) => setEmail(e.target.value)}
               required
             />
-            <EmptyState message='Email: teste@hotmail.com / doctor@hotmail.com'/>
+            {/* <EmptyState message='Email: teste@hotmail.com / doctor@hotmail.com'/> */}
             <Input
               type="password"
               placeholder="Sua senha"
@@ -74,7 +74,7 @@ const Login = () => {
               onChange={(e) => setPassword(e.target.value)}
               required
             />
-            <EmptyState message='Senha: teste123'/>
+            {/* <EmptyState message='Senha: teste123'/> */}
           </div>
 
           <div className="text-right text-sm">

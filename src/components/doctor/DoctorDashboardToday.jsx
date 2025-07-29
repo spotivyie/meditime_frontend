@@ -108,7 +108,7 @@ export default function DashboardAppointments({ role }) {
     return (
       <div className="space-y-10 mx-auto">
         {appointmentsToday.length > 0 && (
-          <div className='pt-8'>
+          <div className=''>
             <SectionTitle>Agendamentos de Hoje</SectionTitle>
             <PaginatedAppointments appointments={appointmentsToday} onCancel={handleCancel} />
           </div>
