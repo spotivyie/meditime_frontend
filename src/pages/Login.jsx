@@ -58,7 +58,7 @@ const Login = () => {
 
           <h2 className="text-2xl font-bold text-center">Acesse sua conta</h2>
 
-          <div className="space-y-4">
+          <div className="space-y-2">
             <Input
               type="email"
               placeholder="Seu e-mail"
