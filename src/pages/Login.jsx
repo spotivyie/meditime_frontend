@@ -12,10 +12,13 @@ import Logo from '../assets/meditime.png';
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setLoading(true);
+
     try {
       const { data } = await api.post('/auth/login', { email, password }, {
         withCredentials: true 
@@ -31,6 +34,8 @@ const Login = () => {
     } catch (error) {
       console.error('Erro ao fazer login:', error);
       alert(error.response?.data?.message || 'Erro ao fazer login');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -46,7 +51,7 @@ const Login = () => {
             <img
               src={Logo}
               alt="Logo da Empresa"
-              className="h-16 w-auto mb-10" 
+              className="h-20 w-auto mb-10" 
             />
           </div>
 
@@ -73,8 +78,8 @@ const Login = () => {
             <a href="#" className="text-blue-400 hover:underline">Esqueci minha senha</a>
           </div>
 
-          <AuthButton>
-            Entrar
+          <AuthButton type="submit" disabled={loading}>
+            {loading ? 'Entrando...' : 'Entrar'}
           </AuthButton>
 
           <div className="text-center text-sm mt-4">

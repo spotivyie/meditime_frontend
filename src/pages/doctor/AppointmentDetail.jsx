@@ -26,7 +26,7 @@ export default function AppointmentDetail() {
         <SectionTitle className='border-b border-gray-700 text-center pb-3'>Detalhe do Agendamento</SectionTitle>
 
         <div className="space-y-6">
-          <div className="flex justify-between items-start space-x-12">
+          <div className="md:flex md:space-x-12 md:space-y-0 justify-between items-start space-y-6">
             <div className="flex-1">
               <h3 className="text-lg font-medium">Paciente</h3>
               <p>{appointment.patient.name}</p>

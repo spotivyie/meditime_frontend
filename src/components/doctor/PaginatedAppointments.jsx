@@ -20,13 +20,13 @@ export default function PaginatedAppointments({ appointments, onCancel }) {
   } = usePagination(appointments, 10);
 
   return (
-    <div className='pt-4'>
+    <div className="pt-4">
       <div className="border border-gray-700 rounded overflow-hidden">
         <div className="hidden md:grid grid-cols-12 bg-gray-800 text-gray-400 uppercase text-xs font-semibold px-4 py-3">
           <div className="col-span-3">Paciente</div>
           <div className="col-span-3">Data</div>
-          <div className="col-span-2">Status</div>
           <div className="col-span-3">Doutor</div>
+          <div className="col-span-2">Status</div>
           <div className="col-span-1 text-right">Ações</div>
         </div>
 
@@ -48,28 +48,53 @@ export default function PaginatedAppointments({ appointments, onCancel }) {
           return (
             <div
               key={app._id}
-              className="grid grid-cols-1 bg-gray-900 md:grid-cols-12 gap-2 md:gap-0 border-t border-gray-700 px-4 py-3 items-center hover:bg-gray-800 transition"
+              className="grid grid-cols-1 md:grid-cols-12 bg-gray-900 gap-4 md:gap-0 border-t border-gray-700 px-4 py-3 items-start md:items-center hover:bg-gray-800 transition"
             >
-              <div className="col-span-1 md:col-span-3 flex items-center space-x-2">
+              <div className="md:col-span-3 flex items-center space-x-2">
                 <div className="w-8 h-8 bg-gray-700 rounded-full flex items-center justify-center text-sm font-semibold">
                   {patientInitials}
                 </div>
-                <span>{app.patient.name}</span>
+                <div>
+                  <div className="block md:hidden text-xs text-gray-400">Paciente</div>
+                  <span>{app.patient.name}</span>
+                </div>
               </div>
 
-              <div className="col-span-1 md:col-span-3 text-gray-300">
+              <div className="md:col-span-3 text-gray-300">
+                <div className="block md:hidden text-xs text-gray-400 mb-1">Data</div>
                 {formattedDate}
               </div>
 
-              <div className="col-span-1 md:col-span-2">
-                <StatusBadge status={app.status} />
-              </div>
-
-              <div className="col-span-1 md:col-span-3 text-gray-300">
+              <div className="md:col-span-3 text-gray-300">
+                <div className="block md:hidden text-xs text-gray-400 mb-1">Doutor</div>
                 {app.doctor?.name || '---'}
               </div>
 
-              <div className="col-span-1 md:col-span-1 flex xl:justify-end space-x-4">
+              <div className="md:hidden flex justify-between items-center">
+                <StatusBadge status={app.status} />
+                <div className="flex space-x-4">
+                  <button
+                    onClick={() => navigate(`/appointment/${app._id}`)}
+                    className="text-green-400 hover:text-green-500 transition"
+                    aria-label="Ver detalhes"
+                  >
+                    <Eye size={20} />
+                  </button>
+                  <button
+                    onClick={() => onCancel(app._id)}
+                    className="text-red-500 hover:text-red-600 transition"
+                    aria-label="Cancelar consulta"
+                  >
+                    <XCircle size={20} />
+                  </button>
+                </div>
+              </div>
+
+              <div className="hidden md:block md:col-span-2">
+                <StatusBadge status={app.status} />
+              </div>
+
+              <div className="hidden md:flex md:col-span-1 xl:justify-end space-x-4">
                 <button
                   onClick={() => navigate(`/appointment/${app._id}`)}
                   className="text-green-400 hover:text-green-500 transition"

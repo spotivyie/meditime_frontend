@@ -13,6 +13,10 @@ const UserProfile = ({ user, handleLogout }) => {
     setOpen(false);
   };
 
+  const handleOptionClick = () => {
+    setOpen(false); 
+  };
+
   const toggleDropdown = () => setOpen(!open);
 
   const baseUrl = import.meta.env.VITE_BASE_URL;
@@ -54,7 +58,7 @@ const UserProfile = ({ user, handleLogout }) => {
       {/* Dropdown menu */}
       {open && (
         <div className="absolute right-0 mt-2 w-64 xl:w-44 bg-gray-800 shadow-lg rounded p-4 z-50 space-y-6">
-          <div className="block lg:hidden">
+          <div className="block lg:hidden" onClick={handleOptionClick}>
             <RoleNavigation />
             <hr className="border-gray-700 my-2" />
           </div>
