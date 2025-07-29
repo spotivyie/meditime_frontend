@@ -4,7 +4,7 @@ import CloseButton from "../ui/CloseButton";
 import HourPicker from "../ui/HourPicker";
 import Input from "../ui/Input";
 import InputDate from "../ui/InputDate";
-import ModalCard from "../ui/ModalCard";
+import UserFormModal from "../ui/UserFormModal";
 
 export default function AppointmentEdit({
   app,
@@ -18,7 +18,7 @@ export default function AppointmentEdit({
 }) {
 
   return (
-    <ModalCard className="max-w-xl">
+    <UserFormModal className="max-w-xl">
       <div>
         <InputDate 
           label="Data" 
@@ -52,6 +52,6 @@ export default function AppointmentEdit({
         <Button onClick={onSave} fullWidth>Salvar Alterações</Button>
         <CloseButton onClick={onCancel} className="ml-auto" />
       </div>
-    </ModalCard>
+    </UserFormModal>
   );
 }

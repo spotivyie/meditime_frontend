@@ -7,7 +7,7 @@ import FileInput from '../ui/FileInput';
 import CloseButton from '../ui/CloseButton';
 import Button from '../ui/Button';
 import ErrorMessage from '../ui/ErrorMessage';
-import ModalCard from '../ui/ModalCard';
+import UserFormModal from '../ui/UserFormModal';
 import SectionTitle from '../ui/SectionTitle';
 
 export default function DoctorExamUpload({ onCancel }) {
@@ -45,7 +45,7 @@ export default function DoctorExamUpload({ onCancel }) {
   };
 
   return (
-    <ModalCard>
+    <UserFormModal>
       <SectionTitle>Enviar Resultado do Exame</SectionTitle>
 
       <ExamInput
@@ -83,6 +83,6 @@ export default function DoctorExamUpload({ onCancel }) {
           </CloseButton>
         )}
       </div>
-    </ModalCard>
+    </UserFormModal>
   );
 }

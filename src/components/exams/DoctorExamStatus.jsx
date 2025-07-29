@@ -6,7 +6,7 @@ import ExamInput from '../ui/ExamInput';
 import CloseButton from '../ui/CloseButton';
 import Button from '../ui/Button';
 import ErrorMessage from '../ui/ErrorMessage';
-import ModalCard from '../ui/ModalCard';
+import UserFormModal from '../ui/UserFormModal';
 import SectionTitle from '../ui/SectionTitle';
 
 export default function DoctorExamStatus({ exameId, onCancel, onSuccess }) {
@@ -41,7 +41,7 @@ export default function DoctorExamStatus({ exameId, onCancel, onSuccess }) {
   };
 
   return (
-    <ModalCard>
+    <UserFormModal>
       <SectionTitle>Atualizar Status do Exame</SectionTitle>
 
       <div>
@@ -82,6 +82,6 @@ export default function DoctorExamStatus({ exameId, onCancel, onSuccess }) {
           </CloseButton>
         )}
       </div>
-    </ModalCard>
+    </UserFormModal>
   );
 }

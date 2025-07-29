@@ -6,7 +6,7 @@ import CloseButton from '../ui/CloseButton';
 import ExamInput from '../ui/ExamInput';
 import Button from '../ui/Button';
 import ErrorMessage from '../ui/ErrorMessage';
-import ModalCard from '../ui/ModalCard';
+import UserFormModal from '../ui/UserFormModal';
 import SectionTitle from '../ui/SectionTitle';
 
 export default function DoctorNewExam({ patient, onCancel }) {
@@ -52,7 +52,7 @@ export default function DoctorNewExam({ patient, onCancel }) {
   };
 
   return (
-    <ModalCard>
+    <UserFormModal>
       <SectionTitle>Solicitar Novo Exame</SectionTitle>
 
       <div>
@@ -98,6 +98,6 @@ export default function DoctorNewExam({ patient, onCancel }) {
           </CloseButton>
         )}
       </div>
-    </ModalCard>
+    </UserFormModal>
   );
 }

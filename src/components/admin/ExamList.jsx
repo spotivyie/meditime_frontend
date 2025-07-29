@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 //components
 import Modal from '../ui/Modal';
 import StatusBadge from '../ui/StatusBadge';
@@ -11,7 +11,7 @@ import Button from '../ui/Button';
 import DoctorNewExam from '../exams/DoctorNewExam'; 
 
 export default function ExamList({
-  exams,
+  exams: initialExams,  // Recebe os exames inicialmente
   showNewExam,
   setShowNewExam,
   showUpdateStatus,
@@ -21,10 +21,28 @@ export default function ExamList({
   baseURL,
   patient 
 }) {
+  const [exams, setExams] = useState(initialExams);  // Gerenciar os exames com estado local
+
   const onFormSubmit = () => {
     setShowNewExam(false);
     setShowUpdateStatus(null);
     setShowUploadResult(null);
+  };
+
+  const handleUpdateExamStatus = (updatedExam) => {
+    // Atualizar o estado dos exames com os dados alterados
+    const updatedExams = exams.map(exam => 
+      exam._id === updatedExam._id ? updatedExam : exam
+    );
+    setExams(updatedExams);  // Atualiza o estado local
+  };
+
+  const handleUploadExamResult = (updatedExam) => {
+    // Atualizar o estado dos exames com os resultados enviados
+    const updatedExams = exams.map(exam => 
+      exam._id === updatedExam._id ? updatedExam : exam
+    );
+    setExams(updatedExams);  // Atualiza o estado local
   };
 
   return (
@@ -106,7 +124,10 @@ export default function ExamList({
                 <DoctorExamStatus
                   exameId={exam._id}
                   onCancel={() => setShowUpdateStatus(null)}
-                  onSuccess={onFormSubmit}
+                  onSuccess={(updatedExam) => {
+                    handleUpdateExamStatus(updatedExam);  // Atualiza o status do exame
+                    setShowUpdateStatus(null);
+                  }}
                 />
               </Modal>
 
@@ -114,7 +135,10 @@ export default function ExamList({
                 <DoctorExamUpload
                   exameId={exam._id}
                   onCancel={() => setShowUploadResult(null)}
-                  onSuccess={onFormSubmit}
+                  onSuccess={(updatedExam) => {
+                    handleUploadExamResult(updatedExam);  // Atualiza o resultado do exame
+                    setShowUploadResult(null);
+                  }}
                 />
               </Modal>
             </div>
