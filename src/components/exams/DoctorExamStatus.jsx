@@ -2,12 +2,12 @@ import { useState } from 'react';
 //services
 import api from '../../services/api';
 //components
-import ExamInput from '../ui/ExamInput';
-import CloseButton from '../ui/CloseButton';
 import Button from '../ui/Button';
+import CloseButton from '../ui/CloseButton';
 import ErrorMessage from '../ui/ErrorMessage';
 import UserFormModal from '../ui/UserFormModal';
 import SectionTitle from '../ui/SectionTitle';
+import ExamInput from '../ui/ExamInput';
 
 export default function DoctorExamStatus({ exameId, onCancel, onSuccess }) {
   const [status, setStatus] = useState('');
@@ -20,19 +20,20 @@ export default function DoctorExamStatus({ exameId, onCancel, onSuccess }) {
       setError('Selecione um status.');
       return;
     }
+
     setLoading(true);
     setError('');
+
     try {
-      await api.patch(
+      const { data } = await api.patch(
         `/exames/${exameId}/status`,
         { status },
         {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
+          headers: { Authorization: `Bearer ${token}` }
         }
       );
-      if (onSuccess) onSuccess();
+      alert('Status atualizado com sucesso!');
+      if (onSuccess) onSuccess(data); 
     } catch {
       setError('Erro ao atualizar status. Tente novamente.');
     } finally {
@@ -44,11 +45,9 @@ export default function DoctorExamStatus({ exameId, onCancel, onSuccess }) {
     <UserFormModal>
       <SectionTitle>Atualizar Status do Exame</SectionTitle>
 
-      <div>
-        <p className="text-gray-400 mb-2">
-          <span className="font-medium text-gray-300">ID do Exame:</span> {exameId}
-        </p>
-      </div>
+      <p className="text-gray-400 mb-2">
+        <span className="font-medium text-gray-300">ID do Exame:</span> {exameId}
+      </p>
 
       <ExamInput
         label="Novo Status"
@@ -59,28 +58,18 @@ export default function DoctorExamStatus({ exameId, onCancel, onSuccess }) {
           { value: '', label: 'Selecione...' },
           { value: 'pendente', label: 'Pendente' },
           { value: 'realizado', label: 'Realizado' },
-          { value: 'entregue', label: 'Entregue' },
         ]}
       />
 
-      {error && <ErrorMessage message={error}/>}
+      {error && <ErrorMessage message={error} />}
 
       <div className="flex gap-3">
-        <Button
-          onClick={handleSubmit}
-          disabled={loading || !status}
-        >
+        <Button onClick={handleSubmit} disabled={loading || !status}>
           {loading ? 'Atualizando...' : 'Atualizar Status'}
         </Button>
-
-        {onCancel && (
-          <CloseButton
-            onClick={onCancel}
-            disabled={loading}
-          >
-            Cancelar
-          </CloseButton>
-        )}
+        <CloseButton onClick={onCancel} disabled={loading}>
+          Cancelar
+        </CloseButton>
       </div>
     </UserFormModal>
   );

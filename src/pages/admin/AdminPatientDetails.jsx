@@ -18,7 +18,7 @@ export default function AdminPatientDetails() {
   const currentUser = useCurrentUser(token);
   const apiBaseUrl = import.meta.env.VITE_BASE_URL;
   
-  const { patient, exams, appointments, loading, error } = usePatientDetails(patientId, token, currentUser);
+  const { patient, exams, appointments, loading, error, refetch } = usePatientDetails(patientId, token, currentUser);
 
   const [showNewExam, setShowNewExam] = useState(false);
   const [showUpdateStatus, setShowUpdateStatus] = useState(null);
@@ -54,8 +54,8 @@ console.log(patient);
             baseURL={apiBaseUrl}
             patient={patient}  
             onFormSubmit={onFormSubmit} 
+            refetchExams={refetch}
           />
-          
           <AppointmentList appointments={appointments} />
         </>
       )}

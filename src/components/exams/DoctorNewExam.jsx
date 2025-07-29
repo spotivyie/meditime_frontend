@@ -9,7 +9,7 @@ import ErrorMessage from '../ui/ErrorMessage';
 import UserFormModal from '../ui/UserFormModal';
 import SectionTitle from '../ui/SectionTitle';
 
-export default function DoctorNewExam({ patient, onCancel }) {
+export default function DoctorNewExam({ patient, onCancel, onSuccess }) {
   const [form, setForm] = useState({
     pacienteId: patient?._id || '',
     tipoExame: '',
@@ -30,20 +30,27 @@ export default function DoctorNewExam({ patient, onCancel }) {
     setForm(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
     if (!form.pacienteId || !form.tipoExame) {
       setError('Preencha o tipo de exame.');
       return;
     }
+
     setError('');
     setSubmitting(true);
     try {
-      await api.post('/exames', form, {
+      const response = await api.post('/exames', form, {
         headers: { Authorization: `Bearer ${token}` }
       });
+      const newExam = response.data;
+
       alert('Exame solicitado com sucesso!');
       setForm(prev => ({ ...prev, tipoExame: '', observacoes: '' }));
-      if (onCancel) onCancel();
+
+      if (onCancel) onCancel(); 
+      if (onSuccess) onSuccess(newExam); 
     } catch {
       setError('Erro ao solicitar exame.');
     } finally {
@@ -54,50 +61,42 @@ export default function DoctorNewExam({ patient, onCancel }) {
   return (
     <UserFormModal>
       <SectionTitle>Solicitar Novo Exame</SectionTitle>
+      <p className="text-sm text-gray-400 mb-4">
+        <span className="font-medium text-gray-300">Paciente:</span> {patient?.name || 'Não informado'}
+      </p>
 
-      <div>
-        <p className="text-sm text-gray-400 mb-4">
-          <span className="font-medium text-gray-300">Paciente:</span> {patient?.name || 'Não informado'}
-        </p>
-      </div>
+      <form onSubmit={handleSubmit}>
+        <ExamInput
+          label="Tipo do Exame"
+          name="tipoExame"
+          value={form.tipoExame}
+          onChange={handleChange}
+          placeholder="Digite o tipo do exame"
+        />
 
-      <ExamInput
-        label="Tipo do Exame"
-        name="tipoExame"
-        value={form.tipoExame}
-        onChange={handleChange}
-        placeholder="Digite o tipo do exame"
-      />
+        <ExamInput
+          label="Observações"
+          name="observacoes"
+          value={form.observacoes}
+          onChange={handleChange}
+          placeholder="Observações (opcional)"
+          textarea
+          rows={3}
+        />
 
-      <ExamInput
-        label="Observações"
-        name="observacoes"
-        value={form.observacoes}
-        onChange={handleChange}
-        placeholder="Observações do exame (opcional)"
-        textarea
-        rows={3}
-      />
+        {error && <ErrorMessage message={error} />}
 
-      {error && <ErrorMessage message={error}/>}
-
-      <div className="flex gap-3">
-        <Button
-          onClick={handleSubmit}
-          disabled={submitting || !form.tipoExame}
-        >
-          {submitting ? 'Solicitando...' : 'Solicitar Exame'}
-        </Button>
-
-        {onCancel && (
-          <CloseButton
-            onClick={onCancel}
-            disabled={submitting}
-          >
-            Cancelar
-          </CloseButton>
-        )}
-      </div>
+        <div className="flex gap-3 mt-4">
+          <Button type="submit" disabled={submitting || !form.tipoExame}>
+            {submitting ? 'Solicitando...' : 'Solicitar Exame'}
+          </Button>
+          {onCancel && (
+            <CloseButton onClick={onCancel} disabled={submitting}>
+              Cancelar
+            </CloseButton>
+          )}
+        </div>
+      </form>
     </UserFormModal>
   );
 }
