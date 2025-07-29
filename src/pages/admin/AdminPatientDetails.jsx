@@ -7,9 +7,9 @@ import WrapperCard from '../../components/ui/WrapperCard';
 import SectionTitle from '../../components/ui/SectionTitle';
 import EmptyState from '../../components/ui/EmptyState';
 import ErrorMessage from '../../components/ui/ErrorMessage';
-import PatientDetails from '../../components/Admin/PatientDetails';
-import ExamList from '../../components/Admin/ExamList';
-import AppointmentList from '../../components/Admin/AppointmentList';
+import PatientDetails from '../../components/admin/PatientDetails';
+import ExamList from '../../components/admin/ExamList';
+import AppointmentList from '../../components/admin/AppointmentList';
 import useCurrentUser from '../../hooks/CurrentUserFetcher';
 
 export default function AdminPatientDetails() {
