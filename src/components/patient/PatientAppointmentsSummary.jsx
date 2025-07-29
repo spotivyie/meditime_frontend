@@ -12,10 +12,7 @@ export default function PatientAppointmentsSummary() {
   const { appointments, loading, error } = usePatientAppointments();
   const now = new Date();
 
-  const agendados = appointments.filter(appt => {
-    const apptDate = new Date(appt.date);
-    return (appt.status === 'scheduled' || appt.status === 'completed') && apptDate < now;
-  });
+  const agendados = appointments.filter(appt => appt.status === 'completed');
 
   const pendentes = appointments.filter(appt => {
     const apptDate = new Date(appt.date);
