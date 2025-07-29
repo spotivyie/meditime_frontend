@@ -1,6 +1,6 @@
 import PatientAppointmentsSummary from '../patient/PatientAppointmentsSummary';
-import PatientUpcomingAppointments from '../Patient/PatientUpcomingAppointments';
-import RecentExamsPanel from '../Patient/RecentExamsPanel';
+import PatientUpcomingAppointments from '../patient/PatientUpcomingAppointments';
+import RecentExamsPanel from '../patient/RecentExamsPanel';
 
 export default function PatientDashboard() {
   return (
