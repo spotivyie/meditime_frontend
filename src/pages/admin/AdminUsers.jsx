@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 //services
 import api from '../../services/api'; 
 //components
-import UserForm from '../../components/Admin/UserForm'; 
+import UserForm from '../../components/admin/UserForm'; 
 import SectionTitle from '../../components/ui/SectionTitle'; 
 import WrapperCard from '../../components/ui/WrapperCard'; 
 import Button from '../../components/ui/Button'; 
