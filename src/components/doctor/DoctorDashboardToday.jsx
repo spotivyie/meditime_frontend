@@ -115,7 +115,7 @@ export default function DashboardAppointments({ role }) {
         )}
 
         {appointmentsNext.length > 0 && (
-          <div className=''>
+          <div className='pt-8'>
             <SectionTitle>Próximos Agendamentos</SectionTitle>
             <PaginatedAppointments appointments={appointmentsNext} onCancel={handleCancel} />
           </div>

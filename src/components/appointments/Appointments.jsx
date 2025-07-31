@@ -127,15 +127,20 @@ export default function Appointments({ userType }) {
       alert('Selecione data e horário');
       return;
     }
+
     try {
+      const localDateTime = new Date(`${editForm.date}T${editForm.hour}`);
+      const utcISOString = localDateTime.toISOString(); 
+
       await api.put(
         `/appointments/${id}`,
         {
-          date: `${editForm.date}T${editForm.hour}:00`,
+          date: utcISOString, 
           notes: editForm.notes,
         },
         { headers: { Authorization: `Bearer ${token}` } }
       );
+
       alert('Consulta atualizada!');
       setEditing(null);
       setEditForm({ date: '', hour: '', notes: '' });
