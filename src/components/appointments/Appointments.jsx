@@ -73,9 +73,14 @@ export default function Appointments({ userType }) {
 
   const startEditing = (appt) => {
     setEditing(appt._id);
+
+    // Converte a data UTC do backend para horário local para preencher o form corretamente
+    const localDate = new Date(appt.date);
+    const localHour = localDate.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
     setEditForm({
-      date: appt.date.split('T')[0],
-      hour: appt.date.slice(11, 16),
+      date: appt.date.split('T')[0], // data (ano-mês-dia)
+      hour: localHour,                // hora local formatada, ex: "14:00"
       notes: appt.notes || '',
     });
     fetchAvailableHours(appt.doctor._id, appt.date.split('T')[0]);
@@ -122,37 +127,36 @@ export default function Appointments({ userType }) {
     }
   };
 
- const handleSaveEdit = async (id) => {
-  if (!editForm.date || !editForm.hour) {
-    alert('Selecione data e horário');
-    return;
-  }
+  const handleSaveEdit = async (id) => {
+    if (!editForm.date || !editForm.hour) {
+      alert('Selecione data e horário');
+      return;
+    }
 
-  try {
-    // Constrói data local e converte para ISO UTC
-    const localDate = new Date(`${editForm.date}T${editForm.hour}:00`);
-    const dateUtcIso = localDate.toISOString();
+    try {
+      // Cria a data local e converte para ISO string em UTC para backend
+      const localDate = new Date(`${editForm.date}T${editForm.hour}:00`);
+      const dateUtcIso = localDate.toISOString();
 
-    await api.put(
-      `/appointments/${id}`,
-      {
-        date: dateUtcIso,
-        notes: editForm.notes,
-      },
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
+      await api.put(
+        `/appointments/${id}`,
+        {
+          date: dateUtcIso,
+          notes: editForm.notes,
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
 
-    alert('Consulta atualizada!');
-    setEditing(null);
-    setEditForm({ date: '', hour: '', notes: '' });
-    setAvailableHours([]);
-    fetchAppointments();
-  } catch (error) {
-    console.error('Erro ao atualizar consulta:', error);
-    alert('Erro ao atualizar consulta');
-  }
-};
-
+      alert('Consulta atualizada!');
+      setEditing(null);
+      setEditForm({ date: '', hour: '', notes: '' });
+      setAvailableHours([]);
+      fetchAppointments();
+    } catch (error) {
+      console.error('Erro ao atualizar consulta:', error);
+      alert('Erro ao atualizar consulta');
+    }
+  };
 
   const cancelEdit = () => {
     setEditing(null);
