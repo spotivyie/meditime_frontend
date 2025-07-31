@@ -74,13 +74,12 @@ export default function Appointments({ userType }) {
   const startEditing = (appt) => {
     setEditing(appt._id);
 
-    // Converte a data UTC do backend para horário local para preencher o form corretamente
     const localDate = new Date(appt.date);
     const localHour = localDate.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 
     setEditForm({
-      date: appt.date.split('T')[0], // data (ano-mês-dia)
-      hour: localHour,                // hora local formatada, ex: "14:00"
+      date: appt.date.split('T')[0], 
+      hour: localHour,               
       notes: appt.notes || '',
     });
     fetchAvailableHours(appt.doctor._id, appt.date.split('T')[0]);
@@ -134,7 +133,6 @@ export default function Appointments({ userType }) {
     }
 
     try {
-      // Cria a data local e converte para ISO string em UTC para backend
       const localDate = new Date(`${editForm.date}T${editForm.hour}:00`);
       const dateUtcIso = localDate.toISOString();
 
