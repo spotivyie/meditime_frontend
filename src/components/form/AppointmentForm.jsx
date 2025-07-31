@@ -95,25 +95,19 @@ export default function AppointmentForm({
     };
 
     const handleSubmit = async () => {
-    if (!(form.doctorId && form.patientId && form.date && form.hour)) {
-        alert('Por favor, preencha todos os campos.');
-        return;
-    }
+        if (!(form.doctorId && form.patientId && form.date && form.hour)) {
+            alert('Por favor, preencha todos os campos.');
+            return;
+        }
 
-    setSubmitting(true);
+        setSubmitting(true);
         try {
-            const localDateTime = new Date(`${form.date}T${form.hour}`);
-
-            const utcISOString = localDateTime.toISOString(); 
-
             await api.post('/appointments', {
                 doctor: form.doctorId,
                 patient: form.patientId,
-                date: utcISOString,
+                date: `${form.date}T${form.hour}:00`,
                 notes: form.notes
-            }, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            }, { headers: { Authorization: `Bearer ${token}` } });
 
             alert('Consulta agendada com sucesso!');
             setForm({

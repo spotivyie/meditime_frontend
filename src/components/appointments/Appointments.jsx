@@ -1,229 +1,215 @@
 import { useEffect, useState } from 'react';
 //services
 import api from '../../services/api';
+//hooks
+import usePagination from '../../hooks/usePagination';
+//appointments
+import AppointmentItem from './AppointmentItem';
+import AppointmentEdit from './AppointmentEdit';
 //components
-import Input from '../ui/Input';
-import Button from '../ui/Button';
 import WrapperCard from '../ui/WrapperCard';
 import SectionTitle from '../ui/SectionTitle';
-import HourPicker from '../ui/HourPicker';
-import InputDate from '../ui/InputDate';
+import { formatDate } from '../../utils/dateUtils';
+import PaginationControls from '../ui/PaginationControls';
+import Modal from '../ui/Modal'; 
 import EmptyState from '../ui/EmptyState';
+import ErrorMessage from '../ui/ErrorMessage';
 
-export default function AppointmentForm({
-  doctorId: propDoctorId,
-  patientId: propPatientId,
-  onSuccess
-}) {
-  const [doctors, setDoctors] = useState([]);
-  const [patients, setPatients] = useState([]);
+export default function Appointments({ userType }) {
+  const [appointments, setAppointments] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [editing, setEditing] = useState(null);
+  const [editForm, setEditForm] = useState({ date: '', hour: '', notes: '' });
   const [availableHours, setAvailableHours] = useState([]);
-  const [loadingDoctors, setLoadingDoctors] = useState(true);
-  const [loadingPatients, setLoadingPatients] = useState(true);
   const [loadingHours, setLoadingHours] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
-
-  const [form, setForm] = useState({
-      doctorId: propDoctorId || '',
-      patientId: propPatientId || '',
-      date: '',
-      hour: '',
-      notes: ''
-  });
 
   const token = localStorage.getItem('token');
 
-  useEffect(() => {
-      if (!propDoctorId) fetchDoctors();
-      else setLoadingDoctors(false);
+  const {
+    page,
+    totalPages,
+    currentPageItems,
+    handlePrev,
+    handleNext,
+    setPageNumber,
+  } = usePagination(appointments, 10);
 
-      if (!propPatientId) fetchPatients();
-      else setLoadingPatients(false);
+  useEffect(() => {
+    fetchAppointments();
   }, []);
 
-  useEffect(() => {
-      if (form.doctorId && form.date) {
-          fetchAvailableHours(form.doctorId, form.date);
-      }
-  }, [form.doctorId, form.date]);
-
-  const fetchDoctors = async () => {
-      setLoadingDoctors(true);
-      try {
-          const { data } = await api.get('/doctors', { headers: { Authorization: `Bearer ${token}` } });
-          setDoctors(data);
-      } catch {
-          setDoctors([]);
-      } finally {
-          setLoadingDoctors(false);
-      }
-  };
-
-  const fetchPatients = async () => {
-      setLoadingPatients(true);
-      try {
-          const { data } = await api.get('/patients', { headers: { Authorization: `Bearer ${token}` } });
-          setPatients(data);
-      } catch {
-          setPatients([]);
-      } finally {
-          setLoadingPatients(false);
-      }
+  const fetchAppointments = async () => {
+    setLoading(true);
+    try {
+      const url = userType === 'admin' ? '/all-appointments' : '/my-appointments';
+      const { data } = await api.get(url, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const sorted = [...data].sort((a, b) => new Date(b.date) - new Date(a.date));
+      setAppointments(sorted);
+      setError('');
+    } catch {
+      setError('Erro ao carregar agendamentos');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const fetchAvailableHours = async (doctorId, date) => {
-      setLoadingHours(true);
-      try {
-          const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-
-          const { data } = await api.get(`/availability`, {
-              params: { doctorId, date, timezone: timeZone },
-              headers: { Authorization: `Bearer ${token}` },
-          });
-          setAvailableHours(data);
-      } catch {
-          setAvailableHours([]);
-      } finally {
-          setLoadingHours(false);
-      }
-      };
-
-  const handleChange = (e) => {
-      const { name, value } = e.target;
-      setForm(prev => ({
-          ...prev,
-          [name]: value,
-          ...(name === 'doctorId' || name === 'date' ? { hour: '' } : {})
-      }));
+    if (!doctorId || !date) return;
+    setLoadingHours(true);
+    try {
+      const { data } = await api.get(`/availability?doctorId=${doctorId}&date=${date}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setAvailableHours(data);
+    } catch {
+      setAvailableHours([]);
+    } finally {
+      setLoadingHours(false);
+    }
   };
 
-  const handleSubmit = async () => {
-  if (!(form.doctorId && form.patientId && form.date && form.hour)) {
-      alert('Por favor, preencha todos os campos.');
+  const startEditing = (appt) => {
+    setEditing(appt._id);
+    setEditForm({
+      date: appt.date.split('T')[0],
+      hour: appt.date.slice(11, 16),
+      notes: appt.notes || '',
+    });
+    fetchAvailableHours(appt.doctor._id, appt.date.split('T')[0]);
+  };
+
+  const handleCancel = async (id) => {
+    if (!window.confirm('Tem certeza que deseja cancelar esta consulta?')) return;
+    try {
+      await api.delete(`/appointments/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      alert('Consulta cancelada com sucesso!');
+      fetchAppointments();
+    } catch {
+      alert('Erro ao cancelar consulta');
+    }
+  };
+
+  const handleComplete = async (id) => {
+    try {
+      await api.put(
+        `/appointments/${id}`,
+        { status: 'completed' },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      alert('Consulta marcada como concluída!');
+      fetchAppointments();
+    } catch {
+      alert('Erro ao atualizar consulta');
+    }
+  };
+
+  const handleEditChange = (e) => {
+    const { name, value } = e.target;
+    setEditForm((prev) => ({
+      ...prev,
+      [name]: value,
+      ...(name === 'date' ? { hour: '' } : {}),
+    }));
+
+    if (name === 'date') {
+      const appt = appointments.find((a) => a._id === editing);
+      if (appt) fetchAvailableHours(appt.doctor._id, value);
+    }
+  };
+
+  const handleSaveEdit = async (id) => {
+    if (!editForm.date || !editForm.hour) {
+      alert('Selecione data e horário');
       return;
-  }
+    }
+    try {
+      await api.put(
+        `/appointments/${id}`,
+        {
+          date: `${editForm.date}T${editForm.hour}:00`,
+          notes: editForm.notes,
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      alert('Consulta atualizada!');
+      setEditing(null);
+      setEditForm({ date: '', hour: '', notes: '' });
+      setAvailableHours([]);
+      fetchAppointments();
+    } catch {
+      alert('Erro ao atualizar consulta');
+    }
+  };
 
-  setSubmitting(true);
-      try {
-          const localDateTime = new Date(`${form.date}T${form.hour}`);
-
-          const utcISOString = localDateTime.toISOString(); 
-
-          await api.post('/appointments', {
-              doctor: form.doctorId,
-              patient: form.patientId,
-              date: utcISOString,
-              notes: form.notes
-          }, {
-              headers: { Authorization: `Bearer ${token}` }
-          });
-
-          alert('Consulta agendada com sucesso!');
-          setForm({
-              doctorId: propDoctorId || '',
-              patientId: propPatientId || '',
-              date: '',
-              hour: '',
-              notes: ''
-          });
-          setAvailableHours([]);
-          if (onSuccess) onSuccess();
-      } catch {
-          alert('Erro ao agendar consulta');
-      } finally {
-          setSubmitting(false);
-      }
+  const cancelEdit = () => {
+    setEditing(null);
+    setEditForm({ date: '', hour: '', notes: '' });
+    setAvailableHours([]);
   };
 
   return (
-    <WrapperCard className='max-w-xl'>
-      <SectionTitle>Marcar Consulta</SectionTitle>
+    <WrapperCard className="max-w-xl">
+      <SectionTitle>
+        {userType === 'admin' ? 'Agendamentos' : 'Minhas Consultas'}
+      </SectionTitle>
 
-      <div className='bg-gray-900 p-4 space-y-4 rounded'>
-        <div className="flex flex-wrap lg:flex-nowrap gap-4">
-          {!propDoctorId && (
-            <div className="w-full md:w-1/2">
-              {loadingDoctors ? (
-                <EmptyState message="Carregando médicos..."/>
-              ) : (
-                <Input
-                  label="Médico"
-                  name="doctorId"
-                  value={form.doctorId}
-                  onChange={handleChange}
-                  select
-                  options={[
-                          { value: '', label: 'Selecione um médico' },
-                          ...doctors.map((d) => ({
-                          value: d._id,
-                          label: `${d.name}`,
-                      })),
-                  ]}
-                />
-              )}
-            </div>
+      {loading ? (
+        <EmptyState message="Carregando agendamentos..." />
+      ) : error ? (
+        <ErrorMessage message={error} />
+      ) : appointments.length === 0 ? (
+        <EmptyState
+          message={
+            userType === 'admin'
+              ? 'Nenhum agendamento.'
+              : 'Nenhuma consulta agendada'
+          }
+        />
+      ) : (
+        <>
+          {currentPageItems.map((appt) => (
+            <AppointmentItem
+              key={appt._id}
+              app={appt}
+              userType={userType}
+              onEdit={() => startEditing(appt)}
+              onCancel={() => handleCancel(appt._id)}
+              onComplete={() => handleComplete(appt._id)}
+              formatDate={formatDate}
+            />
+          ))}
+
+          {appointments.length > 10 && (
+            <PaginationControls
+              page={page}
+              totalPages={totalPages}
+              handlePrev={handlePrev}
+              handleNext={handleNext}
+              setPageNumber={setPageNumber}
+            />
           )}
 
-          {!propPatientId && (
-            <div className="w-full md:w-1/2">
-              {loadingPatients ? (
-                <EmptyState message="Carregando pacientes..."/>
-              ) : (
-                <Input
-                  label="Paciente"
-                  name="patientId"
-                  value={form.patientId}
-                  onChange={handleChange}
-                  select
-                  options={[
-                      { value: '', label: 'Selecione um paciente' },
-                      ...patients.map((p) => ({ value: p._id, label: p.name })),
-                  ]}
-                />
-              )}
-            </div>
+          {editing && (
+            <Modal onClose={cancelEdit}>
+              <AppointmentEdit
+                app={appointments.find((a) => a._id === editing)}
+                editForm={editForm}
+                setEditForm={setEditForm}
+                availableHours={availableHours}
+                loadingHours={loadingHours}
+                onChange={handleEditChange}
+                onSave={() => handleSaveEdit(editing)}
+                onCancel={cancelEdit}
+              />
+            </Modal>
           )}
-        </div>
-
-        <div>
-          <InputDate
-            label="Data"
-            type="date"
-            name="date"
-            value={form.date}
-            onChange={handleChange}
-            min={new Date().toISOString().split('T')[0]}
-          />
-        </div>
-
-        <div>
-          <HourPicker
-            label="Horário"
-            hours={availableHours}
-            selected={form.hour}
-            onSelect={(hour) => setForm((prev) => ({ ...prev, hour }))}
-            loading={loadingHours}
-          />
-        </div>
-
-        <div>
-          <Input
-            label="Observações"
-            name="notes"
-            value={form.notes}
-            onChange={handleChange}
-            textarea
-            rows={3}
-          />
-        </div>
-
-        <Button
-          fullWidth
-          onClick={handleSubmit}
-          disabled={submitting || !(form.doctorId && form.patientId && form.date && form.hour)}>
-            {submitting ? 'Agendando...' : 'Agendar Consulta'}
-        </Button>
-      </div>
+        </>
+      )}
     </WrapperCard>
   );
 }
