@@ -72,23 +72,22 @@ export default function AppointmentForm({
     };
 
     const fetchAvailableHours = async (doctorId, date) => {
-  if (!doctorId || !date) return;
+        if (!doctorId || !date) return;
 
-  setLoadingHours(true);
-  try {
-    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        setLoadingHours(true);
+        try {
+            const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
-    const { data } = await api.get(`/availability?doctorId=${doctorId}&date=${date}&timezone=${encodeURIComponent(timezone)}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    setAvailableHours(data);
-  } catch {
-    setAvailableHours([]);
-  } finally {
-    setLoadingHours(false);
-  }
-};
-
+            const { data } = await api.get(`/availability?doctorId=${doctorId}&date=${date}&timezone=${encodeURIComponent(timezone)}`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            setAvailableHours(data);
+        } catch {
+            setAvailableHours([]);
+        } finally {
+            setLoadingHours(false);
+        }
+    };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -107,7 +106,6 @@ export default function AppointmentForm({
 
         setSubmitting(true);
         try {
-            // Cria data local do usuário e converte para ISO UTC
             const localDateTime = new Date(`${form.date}T${form.hour}`);
             const utcISOString = localDateTime.toISOString();
 

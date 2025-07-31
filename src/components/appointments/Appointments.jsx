@@ -57,24 +57,19 @@ export default function Appointments({ userType }) {
   };
 
   const fetchAvailableHours = async (doctorId, date) => {
-  if (!doctorId || !date) return;
-
-  setLoadingHours(true);
-  try {
-    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone; 
-
-    const { data } = await api.get(`/availability?doctorId=${doctorId}&date=${date}&timezone=${encodeURIComponent(timezone)}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-
-    setAvailableHours(data);
-  } catch {
-    setAvailableHours([]);
-  } finally {
-    setLoadingHours(false);
-  }
-};
-
+    if (!doctorId || !date) return;
+    setLoadingHours(true);
+    try {
+      const { data } = await api.get(`/availability?doctorId=${doctorId}&date=${date}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setAvailableHours(data);
+    } catch {
+      setAvailableHours([]);
+    } finally {
+      setLoadingHours(false);
+    }
+  };
 
   const startEditing = (appt) => {
     setEditing(appt._id);
@@ -132,21 +127,26 @@ export default function Appointments({ userType }) {
       alert('Selecione data e horário');
       return;
     }
+
     try {
+      const dateTimeLocal = `${editForm.date}T${editForm.hour}:00`;
+
       await api.put(
         `/appointments/${id}`,
         {
-          date: `${editForm.date}T${editForm.hour}:00`,
+          date: dateTimeLocal,
           notes: editForm.notes,
         },
         { headers: { Authorization: `Bearer ${token}` } }
       );
+
       alert('Consulta atualizada!');
       setEditing(null);
       setEditForm({ date: '', hour: '', notes: '' });
       setAvailableHours([]);
       fetchAppointments();
-    } catch {
+    } catch (error) {
+      console.error('Erro ao atualizar consulta:', error);
       alert('Erro ao atualizar consulta');
     }
   };
