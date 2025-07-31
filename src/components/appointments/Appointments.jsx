@@ -57,19 +57,24 @@ export default function Appointments({ userType }) {
   };
 
   const fetchAvailableHours = async (doctorId, date) => {
-    if (!doctorId || !date) return;
-    setLoadingHours(true);
-    try {
-      const { data } = await api.get(`/availability?doctorId=${doctorId}&date=${date}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setAvailableHours(data);
-    } catch {
-      setAvailableHours([]);
-    } finally {
-      setLoadingHours(false);
-    }
-  };
+  if (!doctorId || !date) return;
+
+  setLoadingHours(true);
+  try {
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone; 
+
+    const { data } = await api.get(`/availability?doctorId=${doctorId}&date=${date}&timezone=${encodeURIComponent(timezone)}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    setAvailableHours(data);
+  } catch {
+    setAvailableHours([]);
+  } finally {
+    setLoadingHours(false);
+  }
+};
+
 
   const startEditing = (appt) => {
     setEditing(appt._id);

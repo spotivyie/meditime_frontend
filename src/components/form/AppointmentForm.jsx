@@ -72,18 +72,23 @@ export default function AppointmentForm({
     };
 
     const fetchAvailableHours = async (doctorId, date) => {
-        setLoadingHours(true);
-        try {
-            const { data } = await api.get(`/availability?doctorId=${doctorId}&date=${date}`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            setAvailableHours(data);
-        } catch {
-            setAvailableHours([]);
-        } finally {
-            setLoadingHours(false);
-        }
-    };
+  if (!doctorId || !date) return;
+
+  setLoadingHours(true);
+  try {
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+    const { data } = await api.get(`/availability?doctorId=${doctorId}&date=${date}&timezone=${encodeURIComponent(timezone)}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    setAvailableHours(data);
+  } catch {
+    setAvailableHours([]);
+  } finally {
+    setLoadingHours(false);
+  }
+};
+
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -102,12 +107,18 @@ export default function AppointmentForm({
 
         setSubmitting(true);
         try {
+            // Cria data local do usuário e converte para ISO UTC
+            const localDateTime = new Date(`${form.date}T${form.hour}`);
+            const utcISOString = localDateTime.toISOString();
+
             await api.post('/appointments', {
                 doctor: form.doctorId,
                 patient: form.patientId,
-                date: `${form.date}T${form.hour}:00`,
+                date: utcISOString,
                 notes: form.notes
-            }, { headers: { Authorization: `Bearer ${token}` } });
+            }, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
 
             alert('Consulta agendada com sucesso!');
             setForm({
@@ -132,88 +143,88 @@ export default function AppointmentForm({
 
             <div className='bg-gray-900 p-4 space-y-4 rounded'>
                 <div className="flex flex-wrap lg:flex-nowrap gap-4">
-                {!propDoctorId && (
-                    <div className="w-full md:w-1/2">
-                        {loadingDoctors ? (
-                            <EmptyState message="Carregando médicos..."/>
-                        ) : (
-                            <Input
-                                label="Médico"
-                                name="doctorId"
-                                value={form.doctorId}
-                                onChange={handleChange}
-                                select
-                                options={[
+                    {!propDoctorId && (
+                        <div className="w-full md:w-1/2">
+                            {loadingDoctors ? (
+                                <EmptyState message="Carregando médicos..." />
+                            ) : (
+                                <Input
+                                    label="Médico"
+                                    name="doctorId"
+                                    value={form.doctorId}
+                                    onChange={handleChange}
+                                    select
+                                    options={[
                                         { value: '', label: 'Selecione um médico' },
                                         ...doctors.map((d) => ({
-                                        value: d._id,
-                                        label: `${d.name}`,
-                                    })),
-                                ]}
-                            />
-                        )}
-                    </div>
-                )}
+                                            value: d._id,
+                                            label: `${d.name}`,
+                                        })),
+                                    ]}
+                                />
+                            )}
+                        </div>
+                    )}
 
-                {!propPatientId && (
-                    <div className="w-full md:w-1/2">
-                        {loadingPatients ? (
-                            <EmptyState message="Carregando pacientes..."/>
-                        ) : (
-                            <Input
-                                label="Paciente"
-                                name="patientId"
-                                value={form.patientId}
-                                onChange={handleChange}
-                                select
-                                options={[
-                                    { value: '', label: 'Selecione um paciente' },
-                                    ...patients.map((p) => ({ value: p._id, label: p.name })),
-                                ]}
-                            />
-                        )}
-                    </div>
-                )}
-            </div>
+                    {!propPatientId && (
+                        <div className="w-full md:w-1/2">
+                            {loadingPatients ? (
+                                <EmptyState message="Carregando pacientes..." />
+                            ) : (
+                                <Input
+                                    label="Paciente"
+                                    name="patientId"
+                                    value={form.patientId}
+                                    onChange={handleChange}
+                                    select
+                                    options={[
+                                        { value: '', label: 'Selecione um paciente' },
+                                        ...patients.map((p) => ({ value: p._id, label: p.name })),
+                                    ]}
+                                />
+                            )}
+                        </div>
+                    )}
+                </div>
 
-            <div>
-                <InputDate
-                    label="Data"
-                    type="date"
-                    name="date"
-                    value={form.date}
-                    onChange={handleChange}
-                    min={new Date().toISOString().split('T')[0]}
-                />
-            </div>
+                <div>
+                    <InputDate
+                        label="Data"
+                        type="date"
+                        name="date"
+                        value={form.date}
+                        onChange={handleChange}
+                        min={new Date().toISOString().split('T')[0]}
+                    />
+                </div>
 
-            <div>
-                <HourPicker
-                    label="Horário"
-                    hours={availableHours}
-                    selected={form.hour}
-                    onSelect={(hour) => setForm((prev) => ({ ...prev, hour }))}
-                    loading={loadingHours}
-                />
-            </div>
+                <div>
+                    <HourPicker
+                        label="Horário"
+                        hours={availableHours}
+                        selected={form.hour}
+                        onSelect={(hour) => setForm((prev) => ({ ...prev, hour }))}
+                        loading={loadingHours}
+                    />
+                </div>
 
-            <div>
-                <Input
-                    label="Observações"
-                    name="notes"
-                    value={form.notes}
-                    onChange={handleChange}
-                    textarea
-                    rows={3}
-                />
-            </div>
+                <div>
+                    <Input
+                        label="Observações"
+                        name="notes"
+                        value={form.notes}
+                        onChange={handleChange}
+                        textarea
+                        rows={3}
+                    />
+                </div>
 
-            <Button
-                fullWidth
-                onClick={handleSubmit}
-                disabled={submitting || !(form.doctorId && form.patientId && form.date && form.hour)}>
+                <Button
+                    fullWidth
+                    onClick={handleSubmit}
+                    disabled={submitting || !(form.doctorId && form.patientId && form.date && form.hour)}>
                     {submitting ? 'Agendando...' : 'Agendar Consulta'}
-            </Button>
+                </Button>
             </div>
         </WrapperCard>
     );
